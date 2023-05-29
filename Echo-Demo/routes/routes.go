@@ -13,5 +13,5 @@ func InitRoutes(e *echo.Echo, db *gorm.DB) {
 
 	usersGroup.POST("/create_user", userHandler.CreateUser)
 	usersGroup.GET("/all_users", userHandler.GetAllUsers)
-
+	
 }
