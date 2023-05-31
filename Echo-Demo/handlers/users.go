@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"Echo-Demo/models"
+	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -30,28 +31,55 @@ func (c *UserHandler) CreateUser(ctx echo.Context) error {
 		return err
 	}
 
-	hashPass, _ := HashPassword(user.Password)
-	user.Password = hashPass
-
-	fmt.Println("============> ", user)
-
 	if user.Name == "" {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
 			"error": "missing name!",
+		})
+	} else if user.Password == "" {
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"error": "missing password",
 		})
 	} else if user.Age == 0 {
-		ctx.JSON(http.StatusBadRequest, map[string]string{
-			"error": "missing name!",
-		})
-	} else {
-		c.db.Where(models.User{Email: user.Email}).FirstOrCreate(&user)
-
-		//c.db.Create(&user)
-		return ctx.JSON(http.StatusCreated, map[string]any{
-			"message": "create success",
-			"user":    user,
+		return ctx.JSON(http.StatusBadRequest, echo.Map{
+			"error": "missing age!",
 		})
 	}
+	//else {
+	//	hashPass, _ := HashPassword(user.Password)
+	//	user.Password = hashPass
+	//	//c.db.Where(models.User{Email: user.Email}).FirstOrCreate(&user)
+	//	c.db.FirstOrCreate(&user, models.User{Email: user.Email})
+	//
+	//	//c.db.Create(&user)
+	//	return ctx.JSON(http.StatusCreated, echo.Map{
+	//		"message": "create success",
+	//		"user":    user,
+	//	})
+	//}
+
+	result := c.db.Where("email = ?", user.Email).First(&models.User{})
+
+	fmt.Println("=>>>>>>> result: ", *result)
+	if result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "failed to query database",
+		})
+	}
+
+	if result.RowsAffected == 0 {
+		hashPass, _ := HashPassword(user.Password)
+		user.Password = hashPass
+		c.db.Create(&user)
+	} else {
+		return ctx.JSON(http.StatusCreated, echo.Map{
+			"message": "User email already exists",
+		})
+	}
+
+	return ctx.JSON(http.StatusCreated, echo.Map{
+		"message": "create success",
+		"user":    user,
+	})
 
 	return nil
 }
@@ -88,7 +116,7 @@ func (c *UserHandler) UpdateUser(ctx echo.Context) error {
 
 	c.db.Omit("password").Save(&user)
 
-	return ctx.JSON(http.StatusOK, map[string]any{
+	return ctx.JSON(http.StatusOK, echo.Map{
 		"message": "Update user success",
 	})
 }
@@ -104,7 +132,7 @@ func (c *UserHandler) DeleteUser(ctx echo.Context) error {
 	}
 
 	c.db.Delete(&user)
-	return ctx.JSON(http.StatusOK, map[string]string{
+	return ctx.JSON(http.StatusOK, echo.Map{
 		"message": "Delete user success!",
 	})
 

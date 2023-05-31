@@ -21,7 +21,9 @@ func main() {
 		fmt.Println("connect db success!")
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(
+		&models.User{},
+	)
 
 	server.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "SERVER ON")

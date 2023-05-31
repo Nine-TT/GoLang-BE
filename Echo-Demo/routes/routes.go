@@ -8,6 +8,9 @@ import (
 
 func InitRoutes(e *echo.Echo, db *gorm.DB) {
 	userHandler := handlers.NewUserHandler(db)
+	loginHandler := handlers.LoginHandler(db)
+
+	e.POST("/login", loginHandler.Login)
 
 	usersGroup := e.Group("/users")
 	usersGroup.POST("/create_user", userHandler.CreateUser)

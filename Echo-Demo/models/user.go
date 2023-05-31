@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	Id       uint   `json:"id" form:"id" gorm:"primaryKey" `
 	Email    string `json:"email" form:"email"`
@@ -9,6 +11,18 @@ type User struct {
 }
 
 type Login struct {
-	email    string `json:"email"`
-	password string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Work struct {
+	Id            int    `json:"id"`
+	UserId        int    `json:"user_id"`
+	Title         string `json:"title"`
+	Content       string `json:"content"`
+	DateCreated   *time.Time
+	DateComplated *time.Time
+	IsComplated   bool `json:"is_complated"`
+	IsWarming     bool `json:"is_warming"`
+	IsPending     bool `json:"is_pending"`
 }
