@@ -98,7 +98,7 @@ func (c *UserHandler) DeleteUser(ctx echo.Context) error {
 
 	var user models.User
 	if err := c.db.First(&user, id).Error; err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, map[string]string{
+		return echo.NewHTTPError(http.StatusNotFound, echo.Map{
 			"message": "User not found",
 		})
 	}
