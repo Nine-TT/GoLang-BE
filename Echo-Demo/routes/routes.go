@@ -7,11 +7,13 @@ import (
 )
 
 func InitRoutes(e *echo.Echo, db *gorm.DB) {
-
 	userHandler := handlers.NewUserHandler(db)
-	usersGroup := e.Group("/users")
 
+	usersGroup := e.Group("/users")
 	usersGroup.POST("/create_user", userHandler.CreateUser)
 	usersGroup.GET("/all_users", userHandler.GetAllUsers)
-	
+	usersGroup.GET("/getbyid", userHandler.GetUserById)
+	usersGroup.PUT("/update", userHandler.UpdateUser)
+	usersGroup.DELETE("/delete/:id", userHandler.DeleteUser)
+
 }
